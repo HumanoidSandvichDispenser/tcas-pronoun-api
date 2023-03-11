@@ -74,7 +74,7 @@ func remove(s []string, i int) []string {
 }
 
 func readPronounsFile() ([]byte, error) {
-	f, err := os.ReadFile("pronouns")
+	f, err := os.ReadFile("./data/pronouns")
 	return f, err
 }
 func parsePronounsFile(f []byte) {
@@ -110,10 +110,10 @@ func addPronoun(c *gin.Context) {
 		}
 	}
 	entry := User{Username: formUsername, Pronouns: formPronouns}
-	f, err := os.ReadFile("pronouns")
+	f, err := os.ReadFile("./data/pronouns")
 	serverFatal("reading pronouns failed", c, err)
 	newList := []byte(fmt.Sprintf("%s\n%s;%s", string(f), formUsername, formPronouns))
-	err = os.WriteFile("pronouns", newList, os.ModeAppend)
+	err = os.WriteFile("./data/pronouns", newList, os.ModeAppend)
 	serverFatal("adding entry failed", c, err)
 	parsePronounsFile(newList)
 	c.JSON(http.StatusCreated, entry)
@@ -128,12 +128,12 @@ func setPronoun(c *gin.Context) {
 				c.AbortWithStatus(http.StatusNotModified)
 				return
 			}
-			f, err := os.ReadFile("pronouns")
+			f, err := os.ReadFile("./data/pronouns")
 			serverFatal("reading pronouns failed", c, err)
 			lines := strings.Split(string(f), "\n")
 			lines[u.LineNum] = fmt.Sprintf("%s;%s", formUsername, formPronouns)
-			os.WriteFile("pronouns", []byte(strings.Join(lines, "\n")), os.ModeAppend)
-			f, err = os.ReadFile("pronouns")
+			os.WriteFile("./data/pronouns", []byte(strings.Join(lines, "\n")), os.ModeAppend)
+			f, err = os.ReadFile("./data/pronouns")
 			serverFatal("reading pronouns failed", c, err)
 			parsePronounsFile(f)
 			c.JSON(http.StatusOK, Pronouns[u.LineNum])
@@ -147,12 +147,12 @@ func deletePronoun(c *gin.Context) {
 	username := c.Param("username")
 	for _, u := range Pronouns {
 		if u.Username == username {
-			f, err := os.ReadFile("pronouns")
+			f, err := os.ReadFile("./data/pronouns")
 			serverFatal("reading pronouns failed", c, err)
 			lines := strings.Split(string(f), "\n")
 			lines = remove(lines, u.LineNum)
-			os.WriteFile("pronouns", []byte(strings.Join(lines, "\n")), os.ModeAppend)
-			f, err = os.ReadFile("pronouns")
+			os.WriteFile("./data/pronouns", []byte(strings.Join(lines, "\n")), os.ModeAppend)
+			f, err = os.ReadFile("./data/pronouns")
 			serverFatal("reading pronouns failed", c, err)
 			parsePronounsFile(f)
 			c.JSON(http.StatusOK, u)
